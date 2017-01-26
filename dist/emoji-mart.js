@@ -1325,11 +1325,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var RECENT_CATEGORY = { name: 'Recent', emojis: null };
-	var SEARCH_CATEGORY = { name: 'Search', emojis: null, anchor: RECENT_CATEGORY };
-
-	var CATEGORIES = [SEARCH_CATEGORY, RECENT_CATEGORY].concat(_data2.default.categories);
-
 	var I18N = {
 	  search: 'Search',
 	  categories: {
@@ -1359,7 +1354,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	      skin: _store2.default.get('skin') || props.skin,
 	      firstRender: true
 	    };
-	    _this.categories = CATEGORIES;
+
+	    _this.searchCategory = { name: 'Search', emojis: null, anchor: null };
+	    _this.recentCategory = { name: 'Recent', emojis: null };
+	    _this.categories = _data2.default.categories.slice();
+
+	    if (props.recent) {
+	      _this.categories.unshift(_this.recentCategory);
+	    }
+
+	    if (props.search) {
+	      _this.searchCategory.anchor = _this.categories[0];
+	      _this.categories.unshift(_this.searchCategory);
+	    }
 	    return _this;
 	  }
 
@@ -1391,7 +1398,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
-	      SEARCH_CATEGORY.emojis = null;
+	      this.searchCategory.emojis = null;
 
 	      clearTimeout(this.leaveTimeout);
 	      clearTimeout(this.firstRenderTimeout);
@@ -1448,7 +1455,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _this4.updateCategoriesSize();
 	            _this4.handleScrollPaint();
 
-	            if (SEARCH_CATEGORY.emojis) {
+	            if (_this4.searchCategory.emojis) {
 	              component.updateDisplay('none');
 	            }
 	          });
@@ -1466,6 +1473,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'handleScrollPaint',
 	    value: function handleScrollPaint() {
+	      var _this5 = this;
+
 	      this.waitingForPaint = false;
 
 	      if (!this.refs.scroll) {
@@ -1500,7 +1509,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      if (scrollTop < minTop) {
-	        activeCategory = RECENT_CATEGORY;
+	        activeCategory = this.categories.find(function (c) {
+	          return c !== _this5.searchCategory;
+	        });
 	      }
 
 	      if (activeCategory) {
@@ -1519,7 +1530,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'handleSearch',
 	    value: function handleSearch(emojis) {
-	      SEARCH_CATEGORY.emojis = emojis;
+	      this.searchCategory.emojis = emojis;
 
 	      for (var i = 0, l = this.categories.length; i < l; i++) {
 	        var component = this.refs['category-' + i];
@@ -1535,6 +1546,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'handleAnchorClick',
 	    value: function handleAnchorClick(category, i) {
+	      var _this6 = this;
+
 	      var component = this.refs['category-' + i];
 	      var _refs = this.refs;
 	      var scroll = _refs.scroll;
@@ -1546,7 +1559,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var top = component.top;
 
 
-	          if (category.name == 'Recent') {
+	          if (category.name == _this6.categories[1].name && _this6.props.search) {
+	            top = 0;
+	          } else if (category.name == _this6.categories[0].name) {
 	            top = 0;
 	          } else {
 	            top += 1;
@@ -1556,7 +1571,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      };
 
-	      if (SEARCH_CATEGORY.emojis) {
+	      if (this.searchCategory.emojis) {
 	        this.handleSearch(null);
 	        this.refs.search.clear();
 
@@ -1589,7 +1604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this5 = this;
+	      var _this7 = this;
 
 	      var _props = this.props;
 	      var perLine = _props.perLine;
@@ -1601,6 +1616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var emoji = _props.emoji;
 	      var color = _props.color;
 	      var backgroundImageFn = _props.backgroundImageFn;
+	      var search = _props.search;
 	      var skin = this.state.skin;
 	      var width = perLine * (emojiSize + 12) + 12 + 2;
 
@@ -1621,7 +1637,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _react2.default.createElement(
 	          'div',
 	          { ref: 'scroll', className: 'emoji-mart-scroll', onScroll: this.handleScroll.bind(this) },
-	          _react2.default.createElement(_.Search, {
+	          search && _react2.default.createElement(_.Search, {
 	            ref: 'search',
 	            onSearch: this.handleSearch.bind(this),
 	            i18n: this.i18n
@@ -1633,17 +1649,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	              name: category.name,
 	              emojis: category.emojis,
 	              perLine: perLine,
-	              hasStickyPosition: _this5.hasStickyPosition,
-	              i18n: _this5.i18n,
+	              hasStickyPosition: _this7.hasStickyPosition,
+	              i18n: _this7.i18n,
 	              emojiProps: {
 	                skin: skin,
 	                size: emojiSize,
 	                set: set,
 	                sheetSize: sheetSize,
 	                backgroundImageFn: backgroundImageFn,
-	                onOver: _this5.handleEmojiOver.bind(_this5),
-	                onLeave: _this5.handleEmojiLeave.bind(_this5),
-	                onClick: _this5.handleEmojiClick.bind(_this5)
+	                onOver: _this7.handleEmojiOver.bind(_this7),
+	                onLeave: _this7.handleEmojiLeave.bind(_this7),
+	                onClick: _this7.handleEmojiClick.bind(_this7)
 	              }
 	            });
 	          })
@@ -1691,7 +1707,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  backgroundImageFn: _.Emoji.propTypes.backgroundImageFn,
 	  skin: _.Emoji.propTypes.skin,
 	  sheetSize: _.Emoji.propTypes.sheetSize,
-	  categories: _react2.default.PropTypes.object
+	  search: _react2.default.PropTypes.bool,
+	  recent: _react2.default.PropTypes.bool
 	};
 
 	Picker.defaultProps = {
@@ -1706,7 +1723,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  set: _.Emoji.defaultProps.set,
 	  skin: _.Emoji.defaultProps.skin,
 	  sheetSize: _.Emoji.defaultProps.sheetSize,
-	  backgroundImageFn: _.Emoji.defaultProps.backgroundImageFn
+	  backgroundImageFn: _.Emoji.defaultProps.backgroundImageFn,
+	  search: true,
+	  recent: true
 	};
 
 /***/ },
