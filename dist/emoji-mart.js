@@ -1359,6 +1359,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      skin: _store2.default.get('skin') || props.skin,
 	      firstRender: true
 	    };
+	    _this.categories = CATEGORIES;
 	    return _this;
 	  }
 
@@ -1477,9 +1478,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          activeCategory = null,
 	          minTop = 0;
 
-	      for (var i = 0, l = CATEGORIES.length; i < l; i++) {
-	        var ii = scrollingDown ? CATEGORIES.length - 1 - i : i,
-	            category = CATEGORIES[ii],
+	      for (var i = 0, l = this.categories.length; i < l; i++) {
+	        var ii = scrollingDown ? this.categories.length - 1 - i : i,
+	            category = this.categories[ii],
 	            component = this.refs['category-' + ii];
 
 	        if (component) {
@@ -1520,7 +1521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function handleSearch(emojis) {
 	      SEARCH_CATEGORY.emojis = emojis;
 
-	      for (var i = 0, l = CATEGORIES.length; i < l; i++) {
+	      for (var i = 0, l = this.categories.length; i < l; i++) {
 	        var component = this.refs['category-' + i];
 
 	        if (component && component.props.name != 'Search') {
@@ -1575,17 +1576,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'updateCategoriesSize',
 	    value: function updateCategoriesSize() {
-	      for (var i = 0, l = CATEGORIES.length; i < l; i++) {
+	      for (var i = 0, l = this.categories.length; i < l; i++) {
 	        var component = this.refs['category-' + i];
 	        if (component) component.memoizeSize();
 	      }
 	    }
 	  }, {
-	    key: 'getCategories',
-	    value: function getCategories() {
-	      var categories = CATEGORIES;
-
-	      return this.state.firstRender ? categories.slice(0, 3) : categories;
+	    key: 'getRenderCategories',
+	    value: function getRenderCategories() {
+	      return this.state.firstRender ? this.categories.slice(0, 3) : this.categories;
 	    }
 	  }, {
 	    key: 'render',
@@ -1615,7 +1614,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            ref: 'anchors',
 	            i18n: this.i18n,
 	            color: color,
-	            categories: CATEGORIES,
+	            categories: this.categories,
 	            onAnchorClick: this.handleAnchorClick.bind(this)
 	          })
 	        ),
@@ -1627,7 +1626,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            onSearch: this.handleSearch.bind(this),
 	            i18n: this.i18n
 	          }),
-	          this.getCategories().map(function (category, i) {
+	          this.getRenderCategories().map(function (category, i) {
 	            return _react2.default.createElement(_.Category, {
 	              ref: 'category-' + i,
 	              key: category.name,
@@ -1691,7 +1690,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  set: _.Emoji.propTypes.set,
 	  backgroundImageFn: _.Emoji.propTypes.backgroundImageFn,
 	  skin: _.Emoji.propTypes.skin,
-	  sheetSize: _.Emoji.propTypes.sheetSize
+	  sheetSize: _.Emoji.propTypes.sheetSize,
+	  categories: _react2.default.PropTypes.object
 	};
 
 	Picker.defaultProps = {
