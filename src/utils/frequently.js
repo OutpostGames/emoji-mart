@@ -25,4 +25,8 @@ function get(quantity) {
   return sliced
 }
 
-export default { add, get }
+function reload() {
+  frequently = store.get('frequently') || {};
+}
+
+export default { add, get, reload }
