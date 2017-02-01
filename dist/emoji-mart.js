@@ -710,9 +710,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var parentTop = _parent$getBoundingCl.top;
 
-	      var _label$getBoundingCli = this.label.getBoundingClientRect();
+	      var _ref = this.label && this.label.getBoundingClientRect() || { height: 0 };
 
-	      var labelHeight = _label$getBoundingCli.height;
+	      var labelHeight = _ref.height;
 
 
 	      this.top = top - parentTop + this.parent.scrollTop;
@@ -734,7 +734,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var name = this.props.name;
 
 
-	      if (!this.props.hasStickyPosition) {
+	      if (!this.props.hasStickyPosition && this.label) {
 	        this.label.style.top = margin + 'px';
 	      }
 
@@ -783,6 +783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var hasStickyPosition = _props3.hasStickyPosition;
 	      var emojiProps = _props3.emojiProps;
 	      var i18n = _props3.i18n;
+	      var label = _props3.label;
 	      var emojis = this.getEmojis();
 	      var labelStyles = {};
 	      var labelSpanStyles = {};
@@ -807,7 +808,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _react2.default.createElement(
 	        'div',
 	        { ref: 'container', className: 'emoji-mart-category', style: containerStyles },
-	        _react2.default.createElement(
+	        label && _react2.default.createElement(
 	          'div',
 	          { style: labelStyles, 'data-name': name, className: 'emoji-mart-category-label' },
 	          _react2.default.createElement(
@@ -850,12 +851,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  hasStickyPosition: _react2.default.PropTypes.bool,
 	  name: _react2.default.PropTypes.string.isRequired,
 	  perLine: _react2.default.PropTypes.number.isRequired,
-	  emojiProps: _react2.default.PropTypes.object.isRequired
+	  emojiProps: _react2.default.PropTypes.object.isRequired,
+	  label: _react2.default.PropTypes.bool
 	};
 
 	Category.defaultProps = {
 	  emojis: [],
-	  hasStickyPosition: true
+	  hasStickyPosition: true,
+	  label: true
 	};
 
 /***/ },
@@ -1439,19 +1442,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function handleEmojiOver(emoji) {
 	      var preview = this.refs.preview;
 
-	      preview.setState({ emoji: emoji });
-	      clearTimeout(this.leaveTimeout);
+	      if (preview) {
+	        preview.setState({ emoji: emoji });
+	        clearTimeout(this.leaveTimeout);
+	      }
 	    }
 	  }, {
 	    key: 'handleEmojiLeave',
 	    value: function handleEmojiLeave(emoji) {
 	      var _this3 = this;
 
-	      this.leaveTimeout = setTimeout(function () {
-	        var preview = _this3.refs.preview;
+	      if (this.refs.preview) {
+	        this.leaveTimeout = setTimeout(function () {
+	          var preview = _this3.refs.preview;
 
-	        preview.setState({ emoji: null });
-	      }, 16);
+	          preview.setState({ emoji: null });
+	        }, 16);
+	      }
 	    }
 	  }, {
 	    key: 'handleEmojiClick',
@@ -1539,7 +1546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var categoryName = _activeCategory.name;
 
 
-	        if (anchors.state.selected != categoryName) {
+	        if (anchors && anchors.state.selected != categoryName) {
 	          anchors.setState({ selected: categoryName });
 	        }
 	      }
@@ -1642,7 +1649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _react2.default.createElement(
 	        'div',
 	        { style: _extends({}, style, { width: width }), className: 'emoji-mart' },
-	        _react2.default.createElement(
+	        this.props.categories && _react2.default.createElement(
 	          'div',
 	          { className: 'emoji-mart-bar' },
 	          _react2.default.createElement(_.Anchors, {
@@ -1664,6 +1671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          this.getRenderCategories().map(function (category, i) {
 	            return _react2.default.createElement(_.Category, {
 	              ref: 'category-' + i,
+	              label: _this7.props.categoryLabels,
 	              key: category.name,
 	              name: category.name,
 	              emojis: category.emojis,
@@ -1683,7 +1691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	          })
 	        ),
-	        _react2.default.createElement(
+	        this.props.preview && _react2.default.createElement(
 	          'div',
 	          { className: 'emoji-mart-bar' },
 	          _react2.default.createElement(_.Preview, {
@@ -1727,7 +1735,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  skin: _.Emoji.propTypes.skin,
 	  sheetSize: _.Emoji.propTypes.sheetSize,
 	  search: _react2.default.PropTypes.bool,
-	  recent: _react2.default.PropTypes.bool
+	  recent: _react2.default.PropTypes.bool,
+	  categories: _react2.default.PropTypes.bool,
+	  categoryLabels: _react2.default.PropTypes.bool,
+	  preview: _react2.default.PropTypes.bool
 	};
 
 	Picker.defaultProps = {
@@ -1744,7 +1755,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  sheetSize: _.Emoji.defaultProps.sheetSize,
 	  backgroundImageFn: _.Emoji.defaultProps.backgroundImageFn,
 	  search: true,
-	  recent: true
+	  recent: true,
+	  categories: true,
+	  categoryLabels: true,
+	  preview: true
 	};
 
 /***/ },
