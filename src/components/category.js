@@ -40,7 +40,7 @@ export default class Category extends React.Component {
   memoizeSize() {
     var { top, height } = this.container.getBoundingClientRect()
     var { top: parentTop } = this.parent.getBoundingClientRect()
-    var { height: labelHeight } = this.label.getBoundingClientRect()
+    var { height: labelHeight } = this.label && this.label.getBoundingClientRect() || {height: 0}
 
     this.top = top - parentTop + this.parent.scrollTop
 
@@ -59,7 +59,7 @@ export default class Category extends React.Component {
     if (margin == this.margin) return
     var { name } = this.props
 
-    if (!this.props.hasStickyPosition) {
+    if (!this.props.hasStickyPosition && this.label) {
       this.label.style.top = `${margin}px`
     }
 
@@ -96,7 +96,7 @@ export default class Category extends React.Component {
   }
 
   render() {
-    var { name, hasStickyPosition, emojiProps, i18n } = this.props,
+    var { name, hasStickyPosition, emojiProps, i18n, label } = this.props,
         emojis = this.getEmojis(),
         labelStyles = {},
         labelSpanStyles = {},
@@ -119,9 +119,11 @@ export default class Category extends React.Component {
     }
 
     return <div ref='container' className='emoji-mart-category' style={containerStyles}>
+      {label && 
       <div style={labelStyles} data-name={name} className='emoji-mart-category-label'>
         <span style={labelSpanStyles} ref='label'>{i18n.categories[name.toLowerCase()]}</span>
       </div>
+      }
 
       {emojis && emojis.map((emoji) =>
         <Emoji
@@ -154,9 +156,11 @@ Category.propTypes = {
   name: React.PropTypes.string.isRequired,
   perLine: React.PropTypes.number.isRequired,
   emojiProps: React.PropTypes.object.isRequired,
+  label: React.PropTypes.bool
 }
 
 Category.defaultProps = {
   emojis: [],
   hasStickyPosition: true,
+  label: true
 }

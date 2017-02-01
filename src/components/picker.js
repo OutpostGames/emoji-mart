@@ -87,15 +87,19 @@ export default class Picker extends React.Component {
 
   handleEmojiOver(emoji) {
     var { preview } = this.refs
-    preview.setState({ emoji: emoji })
-    clearTimeout(this.leaveTimeout)
+    if(preview) {
+      preview.setState({ emoji: emoji })
+      clearTimeout(this.leaveTimeout)
+    }
   }
 
   handleEmojiLeave(emoji) {
-    this.leaveTimeout = setTimeout(() => {
-      var { preview } = this.refs
-      preview.setState({ emoji: null })
-    }, 16)
+    if(this.refs.preview) {
+      this.leaveTimeout = setTimeout(() => {
+        var { preview } = this.refs
+        preview.setState({ emoji: null })
+      }, 16)
+    }
   }
 
   handleEmojiClick(emoji, e) {
@@ -170,7 +174,7 @@ export default class Picker extends React.Component {
       let { anchors } = this.refs,
           { name: categoryName } = activeCategory
 
-      if (anchors.state.selected != categoryName) {
+      if (anchors && anchors.state.selected != categoryName) {
         anchors.setState({ selected: categoryName })
       }
     }
@@ -248,7 +252,7 @@ export default class Picker extends React.Component {
         width = (perLine * (emojiSize + 12)) + 12 + 2
 
     return <div style={{...style, width: width}} className='emoji-mart'>
-      <div className='emoji-mart-bar'>
+      {this.props.categories && <div className='emoji-mart-bar'>
         <Anchors
           ref='anchors'
           i18n={this.i18n}
@@ -256,7 +260,7 @@ export default class Picker extends React.Component {
           categories={this.categories}
           onAnchorClick={this.handleAnchorClick.bind(this)}
         />
-      </div>
+      </div>}
 
       <div ref="scroll" className='emoji-mart-scroll' onScroll={this.handleScroll.bind(this)}>
         {search && <Search
@@ -268,6 +272,7 @@ export default class Picker extends React.Component {
         {this.getRenderCategories().map((category, i) => {
           return <Category
             ref={`category-${i}`}
+            label={this.props.categoryLabels}
             key={category.name}
             name={category.name}
             emojis={category.emojis}
@@ -288,7 +293,7 @@ export default class Picker extends React.Component {
         })}
       </div>
 
-      <div className='emoji-mart-bar'>
+      {this.props.preview && <div className='emoji-mart-bar'>
         <Preview
           ref='preview'
           title={title}
@@ -305,7 +310,7 @@ export default class Picker extends React.Component {
             onChange: this.handleSkinChange.bind(this)
           }}
         />
-      </div>
+      </div>}
     </div>
   }
 }
@@ -325,6 +330,9 @@ Picker.propTypes = {
   sheetSize: Emoji.propTypes.sheetSize,
   search: React.PropTypes.bool,
   recent: React.PropTypes.bool,
+  categories: React.PropTypes.bool,
+  categoryLabels: React.PropTypes.bool,
+  preview: React.PropTypes.bool,
 }
 
 Picker.defaultProps = {
@@ -342,4 +350,7 @@ Picker.defaultProps = {
   backgroundImageFn: Emoji.defaultProps.backgroundImageFn,
   search: true,
   recent: true,
+  categories: true,
+  categoryLabels: true,
+  preview: true,
 }
