@@ -10,18 +10,28 @@ class Example extends React.Component {
       emojiSize: 24,
       perLine: 9,
       skin: 1,
+      native: false,
       set: 'apple',
       hidden: false,
+      search: true,
+      preview: true,
+      categories: true,
+      recent: true,
     }
   }
 
   handleInput(e) {
     var { currentTarget } = e,
-        { value } = currentTarget,
+        { value, type, checked } = currentTarget,
         key = currentTarget.getAttribute('data-key'),
         state = {}
 
-    state[key] = parseInt(value)
+    if (type == 'checkbox') {
+      state[key] = checked
+    } else {
+      state[key] = parseInt(value)
+    }
+
     this.setState(state)
   }
 
@@ -76,6 +86,11 @@ class Example extends React.Component {
 <br />  emojiSize<Operator>=</Operator>&#123;<Variable>{this.state.emojiSize}</Variable>&#125; <input type='range' data-key='emojiSize' onChange={this.handleInput.bind(this)} min='16' max='64' value={this.state.emojiSize} />
 <br />  perLine<Operator>=</Operator>&#123;<Variable>{this.state.perLine}</Variable>&#125; {this.state.perLine < 10 ? '  ' : ' '} <input type='range' data-key='perLine' onChange={this.handleInput.bind(this)} min='7' max='16' value={this.state.perLine} />
 <br />  skin<Operator>=</Operator>&#123;<Variable>{this.state.skin}</Variable>&#125;       <input type='range' data-key='skin' onChange={this.handleInput.bind(this)} min='1' max='6' value={this.state.skin} />
+<br />  native<Operator>=</Operator>&#123;<Variable>{this.state.native ? 'true' : 'false'}</Variable>&#125;{this.state.native ? ' ' : ''} <input type='checkbox' data-key='native' onChange={this.handleInput.bind(this)} checked={this.state.native} />
+<br />  search<Operator>=</Operator>&#123;<Variable>{this.state.search ? 'true' : 'false'}</Variable>&#125;{this.state.search ? ' ' : ''} <input type='checkbox' data-key='search' onChange={this.handleInput.bind(this)} checked={this.state.search} />
+<br />  preview<Operator>=</Operator>&#123;<Variable>{this.state.preview ? 'true' : 'false'}</Variable>&#125;{this.state.preview ? ' ' : ''} <input type='checkbox' data-key='preview' onChange={this.handleInput.bind(this)} checked={this.state.preview} />
+<br />  categories<Operator>=</Operator>&#123;<Variable>{this.state.categories ? 'true' : 'false'}</Variable>&#125;{this.state.categories ? ' ' : ''} <input type='checkbox' data-key='categories' onChange={this.handleInput.bind(this)} checked={this.state.categories} />
+<br />  recent<Operator>=</Operator>&#123;<Variable>{this.state.recent ? 'true' : 'false'}</Variable>&#125;{this.state.recent ? ' ' : ''} <input type='checkbox' data-key='recent' onChange={this.handleInput.bind(this)} checked={this.state.recent} />
 <br />  set<Operator>=</Operator><String>'{this.state.set}'</String>
 <br />  onClick<Operator>=</Operator>&#123;(<Variable>emoji</Variable>) => console.log(<Variable>emoji</Variable>)&#125;
 <br /><Operator>/&gt;</Operator>
@@ -86,9 +101,12 @@ class Example extends React.Component {
           emojiSize={this.state.emojiSize}
           perLine={this.state.perLine}
           skin={this.state.skin}
+          native={this.state.native}
+          search={this.state.search}
+          preview={this.state.preview}
+          categories={this.state.categories}
+          recent={this.state.recent}
           set={this.state.set}
-          search={true}
-          recent={true}
           onClick={(emoji) => console.log(emoji)}
         />
       }

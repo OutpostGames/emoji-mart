@@ -37,6 +37,10 @@ export default class Picker extends React.Component {
 
     this.searchCategory = { name: 'Search', emojis: null, anchor: null };
     this.recentCategory = { name: 'Recent', emojis: null };
+    this.updateCategories(this.props);
+  }
+
+  updateCategories(props) {
     this.categories = data.categories.slice();
 
     if(props.recent) {
@@ -47,6 +51,28 @@ export default class Picker extends React.Component {
       this.searchCategory.anchor = this.categories[0];
       this.categories.unshift(this.searchCategory);
     }
+
+    let filteredCategories = [];
+
+    for (let hash of data.categories) {
+      let new_emojis = [];
+      for (let emoji of hash.emojis) {
+        let unified = data.emojis[emoji].unified;
+        if (props.emojisToShowFilter(unified)) {
+          new_emojis.push(emoji)
+        }
+      }
+
+      if (new_emojis.length) {
+        let new_hash = {
+          emojis: new_emojis,
+          name: hash.name
+        }
+        filteredCategories.push(new_hash);
+      }
+    }
+
+    this.categories.concat(filteredCategories);
   }
 
   componentWillReceiveProps(props) {
@@ -61,6 +87,14 @@ export default class Picker extends React.Component {
       this.firstRenderTimeout = setTimeout(() => {
         this.setState({ firstRender: false })
       }, 60)
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if(this.props.search !== nextProps.search 
+      || this.props.recent !== nextProps.recent)
+    {
+      this.updateCategories(nextProps);
     }
   }
 
@@ -189,7 +223,7 @@ export default class Picker extends React.Component {
       let component = this.refs[`category-${i}`]
 
       if (component && component.props.name != 'Search') {
-        let display = emojis ? 'none' : null
+        let display = emojis ? 'none' : 'inherit'
         component.updateDisplay(display)
       }
     }
@@ -247,11 +281,11 @@ export default class Picker extends React.Component {
   }
 
   render() {
-    var { perLine, emojiSize, set, sheetSize, style, title, emoji, color, backgroundImageFn, search } = this.props,
+    var { perLine, emojiSize, set, sheetSize, style, title, emoji, color, native, backgroundImageFn, emojisToShowFilter } = this.props,
         { skin } = this.state,
         width = (perLine * (emojiSize + 12)) + 12 + 2
 
-    return <div style={{...style, width: width}} className='emoji-mart'>
+    return <div style={{width: width, ...style}} className='emoji-mart'>
       {this.props.categories && <div className='emoji-mart-bar'>
         <Anchors
           ref='anchors'
@@ -263,11 +297,12 @@ export default class Picker extends React.Component {
       </div>}
 
       <div ref="scroll" className='emoji-mart-scroll' onScroll={this.handleScroll.bind(this)}>
-        {search && <Search
+        {this.props.search && <Search
           ref='search'
           onSearch={this.handleSearch.bind(this)}
           i18n={this.i18n}
-          />}
+          emojisToShowFilter={emojisToShowFilter}
+        />}
 
         {this.getRenderCategories().map((category, i) => {
           return <Category
@@ -277,13 +312,16 @@ export default class Picker extends React.Component {
             name={category.name}
             emojis={category.emojis}
             perLine={perLine}
+            native={native}
             hasStickyPosition={this.hasStickyPosition}
             i18n={this.i18n}
             emojiProps={{
+              native: native,
               skin: skin,
               size: emojiSize,
               set: set,
               sheetSize: sheetSize,
+              forceSize: native,
               backgroundImageFn: backgroundImageFn,
               onOver: this.handleEmojiOver.bind(this),
               onLeave: this.handleEmojiLeave.bind(this),
@@ -299,6 +337,7 @@ export default class Picker extends React.Component {
           title={title}
           emoji={emoji}
           emojiProps={{
+            native: native,
             size: 38,
             skin: skin,
             set: set,
@@ -325,14 +364,16 @@ Picker.propTypes = {
   emoji: React.PropTypes.string,
   color: React.PropTypes.string,
   set: Emoji.propTypes.set,
-  backgroundImageFn: Emoji.propTypes.backgroundImageFn,
   skin: Emoji.propTypes.skin,
+  native: React.PropTypes.bool,
+  backgroundImageFn: Emoji.propTypes.backgroundImageFn,
   sheetSize: Emoji.propTypes.sheetSize,
   search: React.PropTypes.bool,
   recent: React.PropTypes.bool,
   categories: React.PropTypes.bool,
   categoryLabels: React.PropTypes.bool,
   preview: React.PropTypes.bool,
+  emojisToShowFilter: React.PropTypes.func,
 }
 
 Picker.defaultProps = {
@@ -346,6 +387,7 @@ Picker.defaultProps = {
   color: '#ae65c5',
   set: Emoji.defaultProps.set,
   skin: Emoji.defaultProps.skin,
+  native: Emoji.defaultProps.native,
   sheetSize: Emoji.defaultProps.sheetSize,
   backgroundImageFn: Emoji.defaultProps.backgroundImageFn,
   search: true,
@@ -353,4 +395,5 @@ Picker.defaultProps = {
   categories: true,
   categoryLabels: true,
   preview: true,
+  emojisToShowFilter: (codePoint) => true,
 }
