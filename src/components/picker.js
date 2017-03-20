@@ -37,6 +37,10 @@ export default class Picker extends React.Component {
 
     this.searchCategory = { name: 'Search', emojis: null, anchor: null };
     this.recentCategory = { name: 'Recent', emojis: null };
+    this.updateCategories(this.props);
+  }
+
+  updateCategories(props) {
     this.categories = data.categories.slice();
 
     if(props.recent) {
@@ -83,6 +87,14 @@ export default class Picker extends React.Component {
       this.firstRenderTimeout = setTimeout(() => {
         this.setState({ firstRender: false })
       }, 60)
+    }
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if(this.props.search !== nextProps.search 
+      || this.props.recent !== nextProps.recent)
+    {
+      this.updateCategories(nextProps);
     }
   }
 
