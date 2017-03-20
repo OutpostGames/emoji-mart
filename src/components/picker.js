@@ -274,7 +274,7 @@ export default class Picker extends React.Component {
         width = (perLine * (emojiSize + 12)) + 12 + 2
 
     return <div style={{width: width, ...style}} className='emoji-mart'>
-      <div className='emoji-mart-bar'>
+      {this.props.categories && <div className='emoji-mart-bar'>
         <Anchors
           ref='anchors'
           i18n={this.i18n}
@@ -285,7 +285,7 @@ export default class Picker extends React.Component {
       </div>}
 
       <div ref="scroll" className='emoji-mart-scroll' onScroll={this.handleScroll.bind(this)}>
-        {search && <Search
+        {this.props.search && <Search
           ref='search'
           onSearch={this.handleSearch.bind(this)}
           i18n={this.i18n}
